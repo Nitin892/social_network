@@ -12,10 +12,7 @@ from .models import *
 from rest_framework.decorators import throttle_classes
 from .customerpagination import *
 from .customerthrottle import *
-
-
-class MyCustomThrottle(UserRateThrottle):
-    rate = '3/minute'
+from rest_framework import status
 
 
 class LoginAPIView(APIView):
@@ -28,10 +25,10 @@ class LoginAPIView(APIView):
         if user:
             token, _ = Token.objects.get_or_create(user=user)
 
-            return Response({'msg':'Login successful',"token":token.key})
+            return Response({'msg':'Login successful',"token":token.key},status=status.HTTP_200_OK)
 
         
-        return Response({'invalid':"credentials"})
+        return Response({'invalid':"credentials"},status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -42,26 +39,25 @@ class SignUpAPIView(APIView):
         email = request.data.get('email')
         password = request.data.get('password')
         username = request.data.get('username')
-        first_name = request.data.get('first_name')
 
         if not email:
-            return Response({'error': 'Email is required'})
+            return Response({'error': 'Email is required'},status=status.HTTP_400_BAD_REQUEST)
         if not password:
-            return Response({'error': 'Password is required'})
+            return Response({'error': 'Password is required'},status=status.HTTP_400_BAD_REQUEST)
         if not username:
-            return Response({'error': 'Username is required'})
+            return Response({'error': 'Username is required'},status=status.HTTP_400_BAD_REQUEST)
 
         
         if User.objects.filter(email = email).exists():
-            return Response({'message':"email is already taken"})
+            return Response({'message':"email is already taken"},status=status.HTTP_400_BAD_REQUEST)
 
         if User.objects.filter(username=username).exists():
-            return Response({'message': 'Username is already taken'})
+            return Response({'message': 'Username is already taken'},status=status.HTTP_400_BAD_REQUEST)
         
         newuser = User(email = email,password = make_password(password),username=username)
         newuser.save()
 
-        return Response({"success":"User created"})
+        return Response({"success":"User created"},status=status.HTTP_200_OK)
 
         
 class GetuserAPIView(APIView):
@@ -88,10 +84,10 @@ class SendInvitationAPIView(APIView):
         receiver = User.objects.get(id = id)
 
         if request.user.id == id:
-            return Response({'error':"You can't invite yourself"})
+            return Response({'error':"You can't invite yourself"},status=status.HTTP_400_BAD_REQUEST)
 
         if Invitation.objects.filter(from_user = request.user,to_user =receiver).exists():
-            return Response({'error':'Invitation already send'})
+            return Response({'error':'Invitation already send'},status=status.HTTP_400_BAD_REQUEST)
         
 
         Invitation_obj = Invitation(
@@ -100,7 +96,7 @@ class SendInvitationAPIView(APIView):
         )
         Invitation_obj.save()
 
-        return Response({'msg':'Invitation send successfully'})
+        return Response({'msg':'Invitation send successfully'},status=status.HTTP_200_OK)
 
 
 class RespondFriendRequestAPIView(APIView):
@@ -115,11 +111,11 @@ class RespondFriendRequestAPIView(APIView):
         if action == 'accept':
             invitation_obj.invitation_type
             invitation_obj.save()
-            return Response({"success": "Friend request accepted"})
+            return Response({"success": "Friend request accepted"},status=status.HTTP_200_OK)
         elif action == 'reject':
             invitation_obj.invitation_type = 'rejected'
             invitation_obj.save()
-            return Response({"success": "Friend request rejected"})
+            return Response({"success": "Friend request rejected"},status=status.HTTP_200_OK)
 
 
 class PendingFriendsRequestAPIView(APIView):

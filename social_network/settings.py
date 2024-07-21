@@ -126,8 +126,8 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTHENTICATION_BACKENDS = [
-    'connections.backend.EmailBackend',  # Replace 'your_app' with the actual app name
-    'django.contrib.auth.backends.ModelBackend',  # Keep the default backend
+    'connections.backend.EmailBackend',  
+    'django.contrib.auth.backends.ModelBackend', 
 ]
 
 REST_FRAMEWORK = {
@@ -141,9 +141,4 @@ REST_FRAMEWORK = {
     ],
 }
 
-# settings.py
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-    }
-}
+
